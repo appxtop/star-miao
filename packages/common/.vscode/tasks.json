@@ -1,0 +1,14 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "npm",
+            "script": "watch",
+            "label": "watch自动编译",
+            "isBackground": true,
+            "runOptions": {
+                "runOn": "folderOpen",
+            }
+        }
+    ]
+}

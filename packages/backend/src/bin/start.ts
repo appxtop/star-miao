@@ -1,0 +1,2 @@
+import { startBackendServer } from "..";
+startBackendServer();

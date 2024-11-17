@@ -1,0 +1,200 @@
+<template>
+    <div ref="comRef" class="card-container cursor-default">
+        <div class="header">
+            {{ title }}
+            <span class="num">
+                x{{ num }}
+            </span>
+        </div>
+        <div class="content">
+            <div class="clip" :style="{ backgroundImage: 'url(' + backgroundImageUrl + ')' }">
+            </div>
+            <div class="footer">
+                <div class="num-left">
+                    {{ num_left }}
+                </div>
+                <div class="num-content">
+                </div>
+                <div class="num-right">
+                    {{ num_right }}
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script lang="ts" setup>
+import { onMounted, ref, useTemplateRef } from 'vue';
+import { Pip } from '../single/Pip';
+const title = ref('猫薄荷')
+const num = ref(1);
+const backgroundImageUrl = '/images/猫薄荷.png';
+const num_left = ref(12);
+const num_right = ref(13);
+
+
+function handleClick() {
+    num.value++;
+}
+
+type EvtDown = {
+    time: number;
+    clientX: number;
+    clientY: number;
+    button: number;
+    drag_curClientX: number;
+    drag_curClientY: number;
+    pointerId: number;
+}
+
+let evtDown: EvtDown | null = null;
+const comRef = useTemplateRef('comRef');
+const classNames = ['cursor-default', 'cursor-drag'] as const;
+function changeCursor(className: typeof classNames[number]) {
+    const com = comRef.value;
+    if (!com) {
+        return;
+    }
+    classNames.forEach(item => {
+        com.classList.remove(item);
+    });
+    com.classList.add(className);
+}
+
+onMounted(() => {
+    const com = comRef.value;
+    if (com) {
+        com.onpointerdown = (evt) => {
+            com.setPointerCapture(evt.pointerId);
+            evtDown = {
+                time: performance.now(),
+                clientX: evt.clientX,
+                clientY: evt.clientY,
+                button: evt.button,
+                drag_curClientX: evt.clientX,
+                drag_curClientY: evt.clientY,
+                pointerId: evt.pointerId
+            }
+            com.style.zIndex = (++Pip.cardIndex).toString();
+        }
+        com.onpointermove = (evt) => {
+            evt.preventDefault();
+            if (!evtDown) {
+                return;
+            }
+            const { drag_curClientX, drag_curClientY } = evtDown;
+            const offsetX = evt.clientX - drag_curClientX;
+            const offsetY = evt.clientY - drag_curClientY;
+            const computedStyle = getComputedStyle(com);
+            const curTop = parseFloat(computedStyle.top);
+            const curLeft = parseFloat(computedStyle.left);
+            com.style.top = curTop + offsetY + 'px';
+            com.style.left = curLeft + offsetX + 'px';
+            evtDown.drag_curClientX = evt.clientX;
+            evtDown.drag_curClientY = evt.clientY;
+            changeCursor('cursor-drag');
+        }
+        com.onpointerup = (evt) => {
+            com.releasePointerCapture(evt.pointerId);
+            if (!evtDown || evt.pointerId !== evtDown.pointerId) {
+                return;
+            }
+            if (evt.button === evtDown.button
+                && performance.now() - evtDown.time < 300
+                && Math.abs(evtDown.clientX - evt.clientX) < 20
+                && Math.abs(evtDown.clientY - evt.clientY) < 20
+            ) {
+                if (evt.button === 0) {
+                    handleClick();
+                }
+            }
+            evtDown = null;
+            changeCursor('cursor-default');
+        }
+
+    }
+})
+
+</script>
+
+<style lang="less" scoped>
+.cursor-drag {
+    cursor: move;
+    outline: 5px solid red !important;
+}
+
+.cursor-default {
+    cursor: grab;
+}
+
+.card-container {
+    &:hover {
+        outline: 5px solid green;
+    }
+
+    position: absolute;
+    width: 250px;
+    height: 300px;
+    border: 10px solid #1f1f1f;
+    border-radius: 5px;
+    background-color: #F9F3DE;
+    user-select: none;
+    left: 100px;
+    top: 100px;
+
+    &>.header {
+        background-color: #F6E8B1;
+        height: 50px;
+        font-size: 20px;
+        font-weight: bold;
+        border-bottom: 10px solid #1f1f1f;
+        padding: 5px;
+
+        .num {
+            color: gray;
+            font-size: 15px;
+        }
+    }
+
+    &>.content {
+        padding-top: 15px;
+
+        &>.clip {
+            width: 160px;
+            height: 160px;
+            border-radius: 160px;
+            background-color: #F7E8B1;
+            margin: auto;
+            background-size: cover;
+            /* 让背景图片覆盖整个容器 */
+            background-position: center;
+            /* 将背景图片居中 */
+            background-repeat: no-repeat;
+            /* 防止背景图片重复 */
+        }
+
+
+        &>.footer {
+            display: flex;
+
+            &>.num-left,
+            &>.num-right {
+                background-color: black;
+                width: 50px;
+                height: 50px;
+                border-radius: 50px;
+                color: white;
+                text-align: center;
+                margin: 2px;
+                padding-top: 12px;
+                font-weight: bold;
+                font-size: 18px;
+            }
+
+            &>.num-content {
+                flex: 1;
+            }
+        }
+    }
+}
+</style>

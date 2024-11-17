@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "declarationMap": true,
+    "allowJs": true,
+    "target": "ESNext",
+    "module": "CommonJS",
+    "declaration": true,
+    "outDir": "./dist",
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true, //强制文件名大小写一致
+    "esModuleInterop": true,
+    "noUnusedLocals": true
+  },
+  "include": [
+    "src/**/*"
+  ]
+}
