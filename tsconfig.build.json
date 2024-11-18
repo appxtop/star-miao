@@ -10,7 +10,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true, //强制文件名大小写一致
     "esModuleInterop": true,
-    "noUnusedLocals": true
+    "strict": true
   },
   "include": [
     "src/**/*"

@@ -1,22 +1,29 @@
-<script setup lang="ts">
-import CardCom from './components/CardCom.vue';
-</script>
-
 <template>
   <div class="app">
     <div class="header">
-      header
+      <HeaderCom />
     </div>
     <div class="content">
-      <CardCom />
-      <CardCom />
+      <router-view />
     </div>
   </div>
 </template>
 
+<script setup lang="ts">
+import HeaderCom from './components/HeaderCom.vue';
+import { ws } from './sigleton/ws';
+import { userStore } from './store/user';
+ws.addListener('user', user => {
+  userStore.updateUser(user);
+})
+
+</script>
+
+
 <style lang="less" scoped>
 .app {
   touch-action: none;
+
   height: 100%;
   background-color: yellow;
   display: flex;
@@ -29,8 +36,6 @@ import CardCom from './components/CardCom.vue';
   &>.content {
     background-color: #94BF94;
     flex: 1;
-    display: flex;
-    flex-wrap: wrap;
   }
 
 }

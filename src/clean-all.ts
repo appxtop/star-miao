@@ -12,7 +12,7 @@ import { getPkgs } from './common';
             console.log(`删除目录:${fullPath}`);
             await fs.rm(fullPath, { recursive: true, force: true });
             console.log("ok");
-        } catch (err) {
+        } catch (err: any) {
             console.error(`删除目录失败: ${err.message}`);
         }
     }

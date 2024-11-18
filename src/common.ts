@@ -2,7 +2,7 @@ import { spawn } from 'child_process';
 import fs from 'fs/promises';
 import path from 'path';
 
-export async function execCmd(command, args = []) {
+export async function execCmd(command: string, args = []) {
     await new Promise((resolve, reject) => {
         const child = spawn(command, args, { shell: true, stdio: 'inherit' });
         child.on('exit', (code) => {

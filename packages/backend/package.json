@@ -10,14 +10,14 @@
     "build": "tsc -p tsconfig.build.json"
   },
   "dependencies": {
-    "express": "^4.21.1",
+    "express": "^5.0.1",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
-    "@types/jsonwebtoken": "^9.0.7",
     "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.9.0",
     "typescript": "^5.6.3"
   }
