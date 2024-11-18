@@ -18,6 +18,11 @@ type ConfigName =
     | 'MONGO_DBNAME'
     | 'BACKEND_HOST'
     | 'BACKEND_PORT'
+    | 'MAIL_HOST'
+    | 'MAIL_PORT'
+    | 'MAIL_USER'
+    | 'MAIL_PASS'
+    | 'MAIL_FROM'
     ;
 export function getConfig(name: ConfigName) {
     if (!init) {
@@ -35,6 +40,8 @@ export function getConfig(name: ConfigName) {
                 return '0.0.0.0'
             case 'BACKEND_PORT':
                 return '1088';
+            case 'MAIL_PORT':
+                return '465';
         }
     }
     return val;

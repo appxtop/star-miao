@@ -45,8 +45,8 @@ import { validatePassword, validateUsername } from '@mono/common';
 const router = useRouter();
 const loginForm = ref<any>();
 const formData = ref({
-    username: 'test',
-    password: 'test123456',
+    username: '',
+    password: '',
 });
 const loading = ref(false);
 const errorMsg = ref('');

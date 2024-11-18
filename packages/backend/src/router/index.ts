@@ -1,6 +1,6 @@
 import { login } from "../api/auth";
 import { check_email, check_nickname, check_username, submit } from "../api/register";
-import { set_email, set_nickname, set_password } from "../api/user";
+import { sendVerCode, set_email, set_nickname, set_password } from "../api/user";
 import { ShortUser } from "../types";
 type RouterItem01 = {
     path: string;
@@ -42,6 +42,9 @@ const routers: RouterItem[] = [
         path: '/api/user/set-nickname',
         user: true,
         fn: set_nickname
+    }, {
+        path: '/api/user/sendVerCode',
+        fn: sendVerCode
     }
 ]
 

@@ -1,8 +1,10 @@
-import { validateEmail, validateNickname, validatePassword } from "@mono/common";
+import { KVKeys, validateEmail, validateNickname, validatePassword } from "@mono/common";
 import { encryPwd } from "../authlib";
 import { client } from "@mono/dbman";
 import { ShortUser } from "../types";
 import { roomEmit, RoomEmitKey_user } from "../socket";
+import { sendEmail } from '@mono/common-node';
+import { kvClient } from '@mono/dbman';
 
 export async function set_password(body: {
     oldPassword: string;
@@ -38,13 +40,25 @@ export async function set_password(body: {
 
 }
 
-export async function set_email(body: { email: string }, user: ShortUser) {
-    const email = (body.email + '').toLowerCase();
+export async function checkVercode(email: string, verCode: string) {
+    const verCode_ = await kvClient.get(KVKeys.VERCODE + email);
+    if (!verCode_) {
+        throw new Error('没有验证码');
+    }
+    if (verCode_ !== verCode) {
+        throw new Error('验证码不匹配');
+    }
+}
+
+export async function set_email(body: { email: string, verCode: string }, user: ShortUser) {
+    const email = body.email.toLowerCase();
+    const verCode = body.verCode;
     validateEmail(email);
     const emailExists = await client.collection('users').exist({ email });
     if (emailExists) {
         throw new Error('电子邮件已被注册');
     }
+    await checkVercode(email, verCode);
     //#TODO 数据库应该会有email unique锁吧?
     //#TODO 应该有updateOne方法吧
     const res = await client.collection('users').update({
@@ -69,7 +83,7 @@ export async function set_email(body: { email: string }, user: ShortUser) {
 }
 
 export async function set_nickname(body: { nickname: string }, user: ShortUser) {
-    const nickname = body.nickname + '';
+    const nickname = body.nickname;
     validateNickname(nickname);
     const nicknameExist = await client.collection('users').exist({ nickname });
     if (nicknameExist) {
@@ -94,6 +108,16 @@ export async function set_nickname(body: { nickname: string }, user: ShortUser) 
     } else {
         throw new Error('未知错误');
     }
+}
 
-
+/**
+ * 发送验证码
+ * @param body 
+ */
+export async function sendVerCode(body: { email: string }) {
+    const email = body.email.toLowerCase();
+    const verCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const exp_min = 20;//分钟
+    await sendEmail(email, { subject: '验证邮箱验证码', text: `你的验证码是:${verCode},有效期:${exp_min}分钟` })
+    await kvClient.setex(KVKeys.VERCODE + email, 60 * exp_min, verCode);
 }

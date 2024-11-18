@@ -1,6 +1,6 @@
 <template>
     <div class="login-container">
-        <el-form ref="loginForm" :model="formData" :rules="loginRules" class="login-form">
+        <el-form ref="loginFormRef" :model="formData" :rules="loginRules" class="login-form">
             <div class="title-container">
                 <h3 class="title">注册账号</h3>
             </div>
@@ -34,6 +34,22 @@
                 </el-input>
             </el-form-item>
 
+            <el-form-item prop="verCode">
+                <el-input placeholder="请输入验证码" v-model="formData.verCode">
+                    <template #prefix>
+                        <el-icon class="el-input__icon">
+                            <aim />
+                        </el-icon>
+                    </template>
+                    <template #append>
+                        <el-button :disabled="!verCode_btn_enable" type="primary" @click="handleSendVerCode()">
+                            {{ verCode_btn_text }}
+                        </el-button>
+                    </template>
+                </el-input>
+            </el-form-item>
+
+
             <el-form-item prop="password">
                 <el-input v-model="formData.password" placeholder="请输入密码" show-password>
                     <template #prefix>
@@ -66,21 +82,59 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { checkEmail, checkNickname, checkUsername, register } from '../../api/user';
+import { ref, useTemplateRef } from 'vue';
+import { checkEmail, checkNickname, checkUsername, register, sendVerCode } from '../../api/user';
 import { useRouter } from 'vue-router';
 import { ElMessageBox } from 'element-plus';
 import { validateEmail, validateNickname, validatePassword, validateUsername } from '@mono/common';
 
 const router = useRouter();
-const loginForm = ref<any>();
+const loginForm = useTemplateRef<any>('loginFormRef');
 const formData = ref({
     username: 'test',
     password: 'test123456',
     nickname: '天侠',
     email: 'test@qq.com',
-    confirmPassword: 'test123456'
+    confirmPassword: 'test123456',
+    verCode: ''
 });
+
+
+const verCode_btn_text = ref("发送验证码");
+const verCode_btn_enable = ref(true);
+async function handleSendVerCode() {
+    loginForm.value.validateField(['email'], async (valid: boolean) => {
+        if (valid) {
+            //#TODO 单独验证email
+            verCode_btn_text.value = "发送中...";
+            verCode_btn_enable.value = false;
+            try {
+                await sendVerCode({ email: formData.value.email });
+                ElMessageBox.alert('验证码发送成功');
+                //60秒后重发
+                let num = 60;
+                const timeoutId = setInterval(() => {
+                    num--;
+                    verCode_btn_text.value = `${num}秒后重发`;
+                    if (num <= 0) {
+                        verCode_btn_text.value = '发送验证码';
+                        verCode_btn_enable.value = true;
+                        clearTimeout(timeoutId)
+                    }
+                }, 1000);
+            } catch (e: any) {
+                ElMessageBox.alert(e.message);
+                verCode_btn_text.value = '发送验证码';
+                verCode_btn_enable.value = true;
+            }
+
+        } else {
+            ElMessageBox.alert('邮箱不符合条件');
+        }
+    });
+}
+
+
 const loading = ref(false);
 const errorMsg = ref('');
 function handleSubmit() {

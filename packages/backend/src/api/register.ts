@@ -1,6 +1,7 @@
 import { client } from "@mono/dbman";
 import { validateEmail, validateNickname, validatePassword, validateUsername, PostRegisterResult, UserModel } from "@mono/common";
 import { encryPwd, genToken } from "../authlib";
+import { checkVercode } from "./user";
 
 export async function check_email(body: { email: string }) {
     const email = body.email.toLowerCase();
@@ -38,17 +39,22 @@ export async function submit(body: {
     password: string;
     nickname: string;
     email: string;
+    verCode: string;
 }): Promise<PostRegisterResult> {
     const username = body.username;
     const password = body.password;
     const nickname = body.nickname;
     const email = body.email.toLowerCase();
     const usernameLower = username.toLowerCase();
+    const verCode = body.verCode;
 
     validateEmail(email);
     validateNickname(nickname);
     validateUsername(username);
     validatePassword(password);
+
+    await checkVercode(email, verCode);
+
 
     const nicknameExists = await client.collection("users").exist({
         nickname

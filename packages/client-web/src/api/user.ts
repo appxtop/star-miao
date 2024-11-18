@@ -7,6 +7,7 @@ export interface RegisterData {
     nickname: string;
     email: string;
     password: string;
+    verCode: string;
 }
 
 export async function login(formData: {
@@ -22,15 +23,23 @@ export async function login(formData: {
     return data;
 }
 
+export async function sendVerCode(formData: {
+    email: string
+}) {
+    const res = await apiRequest('/api/user/sendVerCode', formData);
+    const data = res.data as ResultData;
+    return data;
+}
+
 export async function register(formData: RegisterData) {
     const res = await apiRequest('/api/register/submit', formData);
     const data = res.data as PostRegisterResult;
     if (data.ok) {
         localStorage.setItem('token', data.token);
+        ws.newSocket();
     }
     return data;
 }
-
 
 export async function checkUsername(username: string) {
     const res = await apiRequest('/api/register/check-username', { username });

@@ -1,6 +1,5 @@
 import axios from "axios";
 import router from "../router";
-import { ws } from "../sigleton/ws";
 const apiClient = axios.create({
     // baseURL: '/',//api
 });
@@ -24,11 +23,9 @@ apiClient.interceptors.response.use(response => {
 });
 
 export async function apiRequest(path: string, data: any) {
-    const res = await ws.request(path, data);
-    // const res = await apiClient.post(path, data);
+    // const res = await ws.request(path, data);
+    const res = await apiClient.post(path, data);
     return { data: res.data };
-
-
 }
 
 export { apiClient };
