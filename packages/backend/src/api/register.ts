@@ -3,7 +3,7 @@ import { validateEmail, validateNickname, validatePassword, validateUsername, Po
 import { encryPwd, genToken } from "../authlib";
 import { checkVercode } from "./user";
 
-export async function check_email(body: { email: string }) {
+export async function checkEmail(body: { email: string }) {
     const email = body.email.toLowerCase();
     const exist = await client.collection('users').exist({
         email
@@ -13,7 +13,7 @@ export async function check_email(body: { email: string }) {
     }
 }
 
-export async function check_username(body: { username: string }) {
+export async function checkUsername(body: { username: string }) {
     const usernameLower = body.username.toLowerCase();
     const exists = await client.collection('users').exist({
         usernameLower
@@ -23,7 +23,7 @@ export async function check_username(body: { username: string }) {
     }
 }
 
-export async function check_nickname(body: { nickname: string }) {
+export async function checkNickname(body: { nickname: string }) {
     const nickname = body.nickname;
     validateNickname(nickname);
     const exists = await client.collection('users').exist({

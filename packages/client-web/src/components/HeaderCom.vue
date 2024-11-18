@@ -29,18 +29,10 @@
         </template>
       </el-dropdown>
       <template v-else-if="user === null">
-        <router-link
-          to="/login"
-          class="menu-link"
-          :class="{ active: isActive('/login') }"
-        >
+        <router-link to="/login" class="menu-link" :class="{ active: isActive('/login') }">
           登录
         </router-link>
-        <router-link
-          to="/register"
-          class="menu-link"
-          :class="{ active: isActive('/register') }"
-        >
+        <router-link to="/register" class="menu-link" :class="{ active: isActive('/register') }">
           注册
         </router-link>
       </template>
@@ -57,7 +49,7 @@ const user = computed(() => userStore.user);
 
 import { useRoute } from "vue-router";
 import { userStore } from "../store/user";
-import { ws } from "../sigleton/ws";
+import { setToken } from "../db";
 const route = useRoute();
 function isActive(path: string) {
   return route.path === path;
@@ -69,8 +61,7 @@ function handleGoToSettings() {
   router.push("/settings");
 }
 function handleLogout() {
-  localStorage.setItem("token", "");
-  ws.newSocket();
+  setToken("");
   userStore.updateUser(null);
   router.push("/login");
 }
@@ -87,9 +78,11 @@ function handleLogout() {
 
   .logo-container {
     padding: 2px;
-    & > .link {
+
+    &>.link {
       text-decoration: none;
       line-height: var(--header-height);
+
       .logo {
         height: 100%;
       }

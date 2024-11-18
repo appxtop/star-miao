@@ -7,6 +7,7 @@ import routers from './router';
 import _ from 'lodash';
 import { checkToken } from './authlib';
 import { ShortUser } from './types';
+import { HEADER_TOKEN_KEY } from '@mono/common';
 export async function startBackendServer() {
     await connectAll();
     const app = express();
@@ -15,7 +16,7 @@ export async function startBackendServer() {
         app.use(routerItem.path, async (req, res) => {
             let user: ShortUser | undefined = undefined;
             if (routerItem.user) {
-                const token = req.headers['x-token'] as string;
+                const token = req.headers[HEADER_TOKEN_KEY] as string;
                 if (!token) {
                     res.status(401).json({ error: '未认证账号' });
                     return;

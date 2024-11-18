@@ -4,6 +4,7 @@ import { checkToken } from "../authlib";
 import { client } from "@mono/dbman";
 import { VisitorConn } from "./VisitorConn";
 import { UserConn } from "./UserConn";
+import { HEADER_TOKEN_KEY } from "@mono/common";
 
 let socketServer: Server;
 export function startSocketServer(server: http.Server) {
@@ -12,7 +13,7 @@ export function startSocketServer(server: http.Server) {
     });
     socketServer.on('connect', async socket => {
         try {
-            const token = socket.handshake.auth.token as string;
+            const token = socket.handshake.auth[HEADER_TOKEN_KEY] as string;
             const { _id } = await checkToken(token);
             const user = await client.collection('users').findOne({ _id }, { password: false });
             if (!user) {

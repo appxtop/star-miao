@@ -6,7 +6,7 @@ import { roomEmit, RoomEmitKey_user } from "../socket";
 import { sendEmail } from '@mono/common-node';
 import { kvClient } from '@mono/dbman';
 
-export async function set_password(body: {
+export async function setPassword(body: {
     oldPassword: string;
     newPassword: string;
 }, user: ShortUser) {
@@ -50,7 +50,7 @@ export async function checkVercode(email: string, verCode: string) {
     }
 }
 
-export async function set_email(body: { email: string, verCode: string }, user: ShortUser) {
+export async function setEmail(body: { email: string, verCode: string }, user: ShortUser) {
     const email = body.email.toLowerCase();
     const verCode = body.verCode;
     validateEmail(email);
@@ -82,7 +82,7 @@ export async function set_email(body: { email: string, verCode: string }, user: 
 
 }
 
-export async function set_nickname(body: { nickname: string }, user: ShortUser) {
+export async function setNickname(body: { nickname: string }, user: ShortUser) {
     const nickname = body.nickname;
     validateNickname(nickname);
     const nicknameExist = await client.collection('users').exist({ nickname });

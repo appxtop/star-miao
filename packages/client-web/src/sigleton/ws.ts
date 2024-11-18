@@ -1,4 +1,6 @@
 import { io, Socket } from "socket.io-client";
+import { getToken } from "../db";
+import { HEADER_TOKEN_KEY } from "@mono/common";
 
 class MySocketIO {
     private socket: Socket;
@@ -13,14 +15,14 @@ class MySocketIO {
         if (this.socket) {
             this.socket.disconnect();
         }
-        const token = localStorage.getItem('token');
+        const token = getToken();
         const socket = this.socket = io({
             path: '/socket',
             reconnection: true,//启用自动重连
             reconnectionAttempts: 100,  // 重连最大次数
             reconnectionDelay: 1000,  // 重连延迟
             auth: {
-                token
+                [HEADER_TOKEN_KEY]: token
             }
         });
 

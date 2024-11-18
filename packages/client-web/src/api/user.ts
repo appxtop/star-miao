@@ -1,3 +1,4 @@
+import { setToken } from "../db";
 import { ws } from "../sigleton/ws";
 import { apiRequest } from "./apiClient"
 import { PostLoginResult, PostRegisterResult, ResultData } from '@mono/common';
@@ -17,7 +18,7 @@ export async function login(formData: {
     const res = await apiRequest('/api/auth/login', formData);
     const data = res.data as PostLoginResult;
     if (data.ok) {
-        localStorage.setItem('token', data.token);
+        setToken(data.token);
         ws.newSocket();
     }
     return data;
@@ -35,37 +36,37 @@ export async function register(formData: RegisterData) {
     const res = await apiRequest('/api/register/submit', formData);
     const data = res.data as PostRegisterResult;
     if (data.ok) {
-        localStorage.setItem('token', data.token);
+        setToken(data.token);
         ws.newSocket();
     }
     return data;
 }
 
 export async function checkUsername(username: string) {
-    const res = await apiRequest('/api/register/check-username', { username });
+    const res = await apiRequest('/api/register/checkUsername', { username });
     return res.data as ResultData;
 }
 export async function checkEmail(email: string) {
-    const res = await apiRequest('/api/register/check-email', { email });
+    const res = await apiRequest('/api/register/checkEmail', { email });
     return res.data as ResultData;
 }
 export async function checkNickname(nickname: string) {
-    const res = await apiRequest('/api/register/check-nickname', { nickname })
+    const res = await apiRequest('/api/register/checkNickname', { nickname })
     return res.data as ResultData;
 }
 
 export async function setEmail(formData: { email: string }) {
-    const res = await apiRequest('/api/user/set-email', formData);
+    const res = await apiRequest('/api/user/setEmail', formData);
     const data = res.data as ResultData;
     return data;
 }
 export async function setNickname(formData: { nickname: string }) {
-    const res = await apiRequest('/api/user/set-nickname', formData);
+    const res = await apiRequest('/api/user/setNickname', formData);
     const data = res.data as ResultData;
     return data;
 }
 export async function setPassword(formData: { oldPassword: string, password: string }) {
-    const res = await apiRequest('/api/user/set-password', formData);
+    const res = await apiRequest('/api/user/setPassword', formData);
     const data = res.data as ResultData;
     return data;
 }

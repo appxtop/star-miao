@@ -1,51 +1,49 @@
 import { login } from "../api/auth";
-import { check_email, check_nickname, check_username, submit } from "../api/register";
-import { sendVerCode, set_email, set_nickname, set_password } from "../api/user";
+import { checkEmail, checkNickname, checkUsername, submit } from "../api/register";
+import { sendVerCode, setEmail, setNickname, setPassword } from "../api/user";
 import { ShortUser } from "../types";
 type RouterItem01 = {
-    path: string;
     user: true;
     fn: (body: any, user: ShortUser) => Promise<any>;
 }
 type RouterItem02 = {
-    path: string;
     user?: false;
     fn: (body: any) => Promise<any>
 }
-type RouterItem = RouterItem01 | RouterItem02;
+type RouterItem = (RouterItem01 | RouterItem02) & { path: string };
 
 const routers: RouterItem[] = [
     {
         path: '/api/register/submit',
         fn: submit
     }, {
-        path: '/api/register/check-username',
-        fn: check_username,
+        path: '/api/register/checkUsername',
+        fn: checkUsername,
     }, {
-        path: '/api/register/check-email',
-        fn: check_email
+        path: '/api/register/checkEmail',
+        fn: checkEmail
     }, {
-        path: '/api/register/check-nickname',
-        fn: check_nickname
+        path: '/api/register/checkNickname',
+        fn: checkNickname
     }, {
         path: '/api/auth/login',
         fn: login,
     }, {
-        path: '/api/user/set-password',
+        path: '/api/user/setPassword',
         user: true,
-        fn: set_password,
+        fn: setPassword,
     }, {
-        path: '/api/user/set-email',
+        path: '/api/user/setEmail',
         user: true,
-        fn: set_email
+        fn: setEmail
     }, {
-        path: '/api/user/set-nickname',
+        path: '/api/user/setNickname',
         user: true,
-        fn: set_nickname
+        fn: setNickname
     }, {
-        path: '/api/user/sendVerCode',
+        path: '/api/user/sendVerCode' as const,
         fn: sendVerCode
     }
-]
+];
 
 export default routers;

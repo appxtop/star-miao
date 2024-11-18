@@ -1,13 +1,15 @@
 import axios from "axios";
 import router from "../router";
+import { HEADER_TOKEN_KEY } from "@mono/common";
+import { getToken } from "../db";
 const apiClient = axios.create({
     // baseURL: '/',//api
 });
 
 apiClient.interceptors.request.use(config => {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     if (token) {
-        config.headers['x-token'] = `${token}`;
+        config.headers[HEADER_TOKEN_KEY] = token;
     }
     return config;
 });
