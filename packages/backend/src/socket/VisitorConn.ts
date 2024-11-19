@@ -1,6 +1,6 @@
 import { Socket } from "socket.io";
 import _ from "lodash";
-import routers from "../router";
+import { routers } from "../router";
 import { ApiMap, UserModel } from "@mono/common";
 /**
  * 访客连接,暂时不能直接升级为已登录用户连接
@@ -34,7 +34,7 @@ export class VisitorConn {
             const res = await routerItem.fn(body, this.user!);
             callback(_.extend({ ok: 1 }, res));
         } catch (e) {
-            callback({ error: '' + e })
+            callback({ error: e.message })
         }
     }
 }

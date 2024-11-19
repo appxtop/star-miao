@@ -32,4 +32,4 @@ const routers: RoutersType = {
     '/api/user/setPassword': user['/api/user/setPassword']
 };
 
-export default routers;
+export { routers };

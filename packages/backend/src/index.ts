@@ -1,14 +1,15 @@
-import express, { response } from 'express';
+import express from 'express';
 import { createServer } from 'http';
 import { getConfig } from '@mono/common-node';
 import { connectAll } from '@mono/dbman';
 import { startSocketServer } from './socket';
-import routers from './router';
+import { routers } from './router';
 import _ from 'lodash';
 import { checkToken } from './authlib';
 import { ShortUser } from './types';
 import { ApiResultBase, HEADER_TOKEN_KEY } from '@mono/common';
 export async function startBackendServer() {
+    console.log('启动')
     await connectAll();
     const app = express();
     app.use(express.json({ limit: '50mb' }));
@@ -22,8 +23,8 @@ export async function startBackendServer() {
                 const token = req.headers[HEADER_TOKEN_KEY] as string;
                 try {
                     user = await checkToken(token);
-                } catch (e: any) {
-                    result = { status: 401, error: '' + e };
+                } catch (error: any) {
+                    result = { status: 401, error: error.message };
                     res.json(result);
                     return;
                 }
@@ -36,7 +37,7 @@ export async function startBackendServer() {
                 }
                 result = _.extend({ ok: 1 } as any, data)
             } catch (error: any) {
-                result = { error: '' + error };
+                result = { error: error.message };
                 if (error.stack) {
                     console.error(error.stack);
                 }
