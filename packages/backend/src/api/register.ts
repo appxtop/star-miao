@@ -52,7 +52,7 @@ export const register: Pick<RoutersType,
             if (emailExists) {
                 throw new Error('电子邮箱已被注册');
             }
-            const hashedPassword = encryPwd(username, password);
+            const hashedPassword = encryPwd(password);
             const userModel: Partial<UserModel> = {
                 username,
                 nickname,
@@ -61,7 +61,7 @@ export const register: Pick<RoutersType,
                 email,
             };
             const res = await client.collection('users').insertOne(userModel);
-            const token = await genToken({ _id: res._id, username: userModel.username! });
+            const token = await genToken({ _id: res._id });
             return { token };
         }
     },

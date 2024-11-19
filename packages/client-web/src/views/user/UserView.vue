@@ -32,12 +32,8 @@ const user = computed(() => userStore.user);
 function handleEditNickname() {
     ElMessageBox.prompt('请输入新昵称', '修改昵称', {
         inputValidator: (val) => {
-            try {
-                validateNickname(val);
-                return true;
-            } catch (e: any) {
-                return e.message;
-            }
+            validateNickname(val);
+            return true;
         }
     })
         .then(async val => {
@@ -47,10 +43,10 @@ function handleEditNickname() {
                     type: 'success',
                     message: '修改成功'
                 });
-            } catch (e: any) {
+            } catch (e) {
                 ElMessage({
                     type: 'error',
-                    message: '出错了:' + e.message
+                    message: '出错了:' + e
                 })
             }
         });
@@ -59,12 +55,8 @@ function handleEditNickname() {
 function handleEditEmail() {
     ElMessageBox.prompt('请输入新邮箱', '修改邮箱', {
         inputValidator: (val) => {
-            try {
-                validateEmail(val);
-                return true;
-            } catch (e: any) {
-                return e.message;
-            }
+            validateEmail(val);
+            return true;
         }
     })
         .then(async val => {
@@ -74,10 +66,10 @@ function handleEditEmail() {
                     type: 'success',
                     message: '修改成功'
                 });
-            } catch (e: any) {
+            } catch (e) {
                 ElMessage({
                     type: 'error',
-                    message: '出错了:' + e.message
+                    message: '出错了:' + e
                 })
             }
         });

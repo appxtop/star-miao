@@ -1,6 +1,7 @@
-export interface ResultData {
+export interface ApiResultBase {
     ok?: 1;
     error?: string;
+    status?: 401 | 404;
 }
 
 export interface ApiMap {

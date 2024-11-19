@@ -15,6 +15,6 @@
   background-color: rgb(117, 45, 45);
   height: 100%;
   text-align: center;
-  padding:20px;
+  padding: 20px;
 }
 </style>

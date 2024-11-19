@@ -31,8 +31,8 @@ export const user: Pick<RoutersType,
             let newPassword = body.newPassword;
             validatePassword(newPassword);
 
-            oldPassword = encryPwd(user.username, oldPassword);
-            newPassword = encryPwd(user.username, newPassword);
+            oldPassword = encryPwd(oldPassword);
+            newPassword = encryPwd(newPassword);
 
             const userModel = await client.collection('users').findOne({
                 _id: user._id

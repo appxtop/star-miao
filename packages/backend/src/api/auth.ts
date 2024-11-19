@@ -12,12 +12,12 @@ export const auth: Pick<RoutersType, '/api/auth/login'> = {
             const password = body.password;
             const userModel = await client.collection('users').exist({
                 username,
-                password: encryPwd(username, password)
+                password: encryPwd(password)
             });
             if (!userModel) {
                 throw new Error('用户名或密码错误');
             }
-            const token = await genToken({ _id: userModel._id, username });
+            const token = await genToken({ _id: userModel._id });
             return { token };
         }
     }

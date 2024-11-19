@@ -7,27 +7,24 @@ import routers from './router';
 import _ from 'lodash';
 import { checkToken } from './authlib';
 import { ShortUser } from './types';
-import { HEADER_TOKEN_KEY } from '@mono/common';
+import { ApiResultBase, HEADER_TOKEN_KEY } from '@mono/common';
 export async function startBackendServer() {
     await connectAll();
     const app = express();
     app.use(express.json({ limit: '50mb' }));
-
-    for (const keyStr in routers) {
-        const path = keyStr as keyof typeof routers;
+    app.use(async (req, res) => {
+        const path = req.path as keyof typeof routers;
         const routerItem = routers[path];
-        app.use(path, async (req, res) => {
+        let result: ApiResultBase | undefined;
+        if (routerItem) {
             let user: ShortUser | undefined = undefined;
             if (routerItem.user) {
                 const token = req.headers[HEADER_TOKEN_KEY] as string;
-                if (!token) {
-                    res.status(401).json({ error: '未认证账号' });
-                    return;
-                }
                 try {
                     user = await checkToken(token);
                 } catch (e: any) {
-                    response.status(401).json({ error: e.message });
+                    result = { status: 401, error: '' + e };
+                    res.json(result);
                     return;
                 }
             }
@@ -37,19 +34,22 @@ export async function startBackendServer() {
                 if (res.headersSent) {
                     return;
                 }
-                res.json(_.extend({ ok: 1 }, data));
+                result = _.extend({ ok: 1 } as any, data)
             } catch (error: any) {
-                res.json({ error: '' + error });
+                result = { error: '' + error };
                 if (error.stack) {
                     console.error(error.stack);
                 }
             }
-        });
-    }
-
-    app.use((req, res) => {
+            res.json(result);
+            return;
+        }
         console.log('未实现的请求:', req.method, req.baseUrl, 'path:', req.path);
-        res.status(404).json({ "error": req.method + ',' + req.url + ',not found' });
+        result = {
+            "error": req.method + ',' + req.url + ',not found',
+            status: 404
+        }
+        res.json(result);
     });
     const server = createServer(app);
     const host = getConfig('BACKEND_HOST');

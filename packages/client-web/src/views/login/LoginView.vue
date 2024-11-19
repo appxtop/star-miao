@@ -64,14 +64,14 @@ function handleSubmit() {
                     setToken(res.token);
                     ws.newSocket();
                     router.push('/');
-                } catch (e: any) {
-                    errorMsg.value = e.message;
+                } catch (e) {
+                    errorMsg.value = '' + e;
                 }
             } else {
                 ElMessageBox.alert('请正确输入每一项')
             }
-        } catch (e: any) {
-            ElMessageBox.alert('出错了:' + e.message)
+        } catch (e) {
+            ElMessageBox.alert('出错了:' + e);
         } finally {
             loading.value = false;
         }

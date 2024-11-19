@@ -7,6 +7,16 @@ export function validateEmail(email: string) {
         throw new Error('邮箱格式无效')
     }
 }
+
+export function validateVerCode(verCode: string) {
+    if (!verCode) {
+        throw new Error('验证码不能为空');
+    }
+    if (!/^\d{6}$/.test(verCode)) {
+        throw new Error('验证码必须为六位数字');
+    }
+}
+
 export function validateUsername(username: string) {
     if (!username) {
         throw new Error('用户名不能为空');

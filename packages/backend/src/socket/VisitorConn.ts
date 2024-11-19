@@ -1,7 +1,7 @@
 import { Socket } from "socket.io";
 import _ from "lodash";
 import routers from "../router";
-import { UserModel } from "@mono/common";
+import { ApiMap, UserModel } from "@mono/common";
 /**
  * 访客连接,暂时不能直接升级为已登录用户连接
  */
@@ -21,8 +21,7 @@ export class VisitorConn {
     }, callback: Function) {
         const path = data.path;
         const body = data.body;
-
-        const routerItem = routers[path];
+        const routerItem = routers[path as keyof ApiMap];
         if (!routerItem) {
             callback({ error: '未知api' });
             return;
