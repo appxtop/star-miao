@@ -1,49 +1,35 @@
-import { login } from "../api/auth";
-import { checkEmail, checkNickname, checkUsername, submit } from "../api/register";
-import { sendVerCode, setEmail, setNickname, setPassword } from "../api/user";
+import { ApiMap } from "@mono/common"
 import { ShortUser } from "../types";
-type RouterItem01 = {
-    user: true;
-    fn: (body: any, user: ShortUser) => Promise<any>;
-}
-type RouterItem02 = {
-    user?: false;
-    fn: (body: any) => Promise<any>
-}
-type RouterItem = (RouterItem01 | RouterItem02) & { path: string };
+import { auth } from "../api/auth";
+import { register } from "../api/register";
+import { user } from "../api/user";
 
-const routers: RouterItem[] = [
+export type RoutersType = {
+    [path in keyof ApiMap]:
     {
-        path: '/api/register/submit',
-        fn: submit
-    }, {
-        path: '/api/register/checkUsername',
-        fn: checkUsername,
-    }, {
-        path: '/api/register/checkEmail',
-        fn: checkEmail
-    }, {
-        path: '/api/register/checkNickname',
-        fn: checkNickname
-    }, {
-        path: '/api/auth/login',
-        fn: login,
-    }, {
-        path: '/api/user/setPassword',
         user: true,
-        fn: setPassword,
-    }, {
-        path: '/api/user/setEmail',
-        user: true,
-        fn: setEmail
-    }, {
-        path: '/api/user/setNickname',
-        user: true,
-        fn: setNickname
-    }, {
-        path: '/api/user/sendVerCode' as const,
-        fn: sendVerCode
+        fn: (
+            reqBody: ApiMap[path]['request'],
+            user: ShortUser
+        ) => Promise<ApiMap[path]['response']>
+    } | {
+        user?: false,
+        fn: (
+            reqBody: ApiMap[path]['request']
+        ) => Promise<ApiMap[path]['response']>
     }
-];
+};
+
+const routers: RoutersType = {
+    '/api/auth/login': auth["/api/auth/login"],
+    '/api/register/submit': register['/api/register/submit'],
+    '/api/register/checkEmail': register['/api/register/checkEmail'],
+    '/api/register/checkNickname': register['/api/register/checkNickname'],
+    '/api/register/checkUsername': register['/api/register/checkUsername'],
+    '/api/user/sendVerCode': user['/api/user/sendVerCode'],
+    '/api/user/setEmail': user['/api/user/setEmail'],
+    '/api/user/setNickname': user['/api/user/setNickname'],
+    '/api/user/setPassword': user['/api/user/setPassword']
+};
 
 export default routers;

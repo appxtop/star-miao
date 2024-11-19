@@ -21,7 +21,8 @@ export class VisitorConn {
     }, callback: Function) {
         const path = data.path;
         const body = data.body;
-        const routerItem = routers.find(i => i.path === path);
+
+        const routerItem = routers[path];
         if (!routerItem) {
             callback({ error: '未知api' });
             return;

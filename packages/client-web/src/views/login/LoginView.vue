@@ -36,10 +36,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { login } from '../../api/user';
 import { useRouter } from 'vue-router';
 import { ElMessageBox } from 'element-plus';
 import { validatePassword, validateUsername } from '@mono/common';
+import { apiRequest } from '../../api/apiClient';
+import { setToken } from '../../db';
+import { ws } from '../../sigleton/ws';
 
 
 const router = useRouter();
@@ -56,15 +58,14 @@ function handleSubmit() {
         try {
             if (valid) {
                 loading.value = true;
-                const data: any = { ...formData.value };
-                delete data.confirmPassword;
-                const res = await login(data);
-                if (res.ok) {
+                const data = { ...formData.value };
+                try {
+                    const res = await apiRequest('/api/auth/login', data);
+                    setToken(res.token);
+                    ws.newSocket();
                     router.push('/');
-                } else {
-                    if (res.error) {
-                        errorMsg.value = res.error;
-                    }
+                } catch (e: any) {
+                    errorMsg.value = e.message;
                 }
             } else {
                 ElMessageBox.alert('请正确输入每一项')

@@ -12,8 +12,11 @@ export async function startBackendServer() {
     await connectAll();
     const app = express();
     app.use(express.json({ limit: '50mb' }));
-    routers.forEach(routerItem => {
-        app.use(routerItem.path, async (req, res) => {
+
+    for (const keyStr in routers) {
+        const path = keyStr as keyof typeof routers;
+        const routerItem = routers[path];
+        app.use(path, async (req, res) => {
             let user: ShortUser | undefined = undefined;
             if (routerItem.user) {
                 const token = req.headers[HEADER_TOKEN_KEY] as string;
@@ -42,10 +45,10 @@ export async function startBackendServer() {
                 }
             }
         });
-    });
+    }
 
     app.use((req, res) => {
-        console.log('未实现的请求:', req.method, req.baseUrl);
+        console.log('未实现的请求:', req.method, req.baseUrl, 'path:', req.path);
         res.status(404).json({ "error": req.method + ',' + req.url + ',not found' });
     });
     const server = createServer(app);
@@ -56,5 +59,4 @@ export async function startBackendServer() {
     });
     startSocketServer(server);
     server.listen(port, host);
-
 }

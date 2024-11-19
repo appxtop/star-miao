@@ -44,10 +44,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { setPassword } from '../../api/user';
 import { ElMessageBox } from 'element-plus';
 import { validatePassword } from '@mono/common';
 import router from '../../router';
+import { apiRequest } from '../../api/apiClient';
 
 const loginForm = ref<any>();
 const formData = ref({
@@ -63,17 +63,14 @@ function handleSubmit() {
         try {
             if (valid) {
                 loading.value = true;
-                const data: any = { ...formData.value };
-                delete data.confirmPassword;
-                const res = await setPassword(data);
-                if (res.ok) {
+                const data = { ...formData.value };
+                try {
+                    await apiRequest('/api/user/setPassword', data);
                     ElMessageBox.alert('修改成功').then(() => {
                         router.push('/user');
                     })
-                } else {
-                    if (res.error) {
-                        errorMsg.value = res.error;
-                    }
+                } catch (e: any) {
+                    errorMsg.value = e.message;
                 }
             } else {
                 ElMessageBox.alert('请正确输入每一项')

@@ -34,6 +34,11 @@ const routes: { path: string, component: any }[] = [
 const router = createRouter({
     history: createWebHashHistory(),
     routes
-})
+});
+
+
+export function routeSource(path: string) {
+    router.push(path);
+}
 
 export default router;

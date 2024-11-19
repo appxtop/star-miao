@@ -1,6 +1,6 @@
 import axios from "axios";
 import router from "../router";
-import { HEADER_TOKEN_KEY } from "@mono/common";
+import { ApiMap, HEADER_TOKEN_KEY, ResultData } from "@mono/common";
 import { getToken } from "../db";
 const apiClient = axios.create({
     // baseURL: '/',//api
@@ -24,10 +24,16 @@ apiClient.interceptors.response.use(response => {
     return Promise.reject(error);
 });
 
-export async function apiRequest(path: string, data: any) {
+
+export async function apiRequest<T extends keyof ApiMap>(path: T, data: ApiMap[T]['request']): Promise<ApiMap[T]['response']> {
     // const res = await ws.request(path, data);
     const res = await apiClient.post(path, data);
-    return { data: res.data };
+    const result = res.data as ResultData;
+    if (!result.ok) {
+        throw new Error(result.error);
+    }
+    return res.data;
 }
+
 
 export { apiClient };

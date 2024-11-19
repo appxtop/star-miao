@@ -43,7 +43,7 @@
                     </template>
                     <template #append>
                         <el-button :disabled="!verCode_btn_enable" type="primary" @click="handleSendVerCode()">
-                            {{ verCode_btn_text }}
+                            {{ verCode_btn_enable ? "发送验证码" : verCode_btn_disableText }}
                         </el-button>
                     </template>
                 </el-input>
@@ -83,12 +83,13 @@
 
 <script setup lang="ts">
 import { ref, useTemplateRef } from 'vue';
-import { checkEmail, checkNickname, checkUsername, register, sendVerCode } from '../../api/user';
-import { useRouter } from 'vue-router';
 import { ElMessageBox } from 'element-plus';
 import { validateEmail, validateNickname, validatePassword, validateUsername } from '@mono/common';
+import { apiRequest } from '../../api/apiClient';
+import { setToken } from '../../db';
+import { routeSource } from '../../router';
+import { ws } from '../../sigleton/ws';
 
-const router = useRouter();
 const loginForm = useTemplateRef<any>('loginFormRef');
 const formData = ref({
     username: 'test',
@@ -98,36 +99,31 @@ const formData = ref({
     confirmPassword: 'test123456',
     verCode: ''
 });
-
-
-const verCode_btn_text = ref("发送验证码");
+const verCode_btn_disableText = ref("");
 const verCode_btn_enable = ref(true);
 async function handleSendVerCode() {
     loginForm.value.validateField(['email'], async (valid: boolean) => {
         if (valid) {
             //#TODO 单独验证email
-            verCode_btn_text.value = "发送中...";
+            verCode_btn_disableText.value = "发送中...";
             verCode_btn_enable.value = false;
             try {
-                await sendVerCode({ email: formData.value.email });
+                await apiRequest('/api/user/sendVerCode', { email: formData.value.email });
                 ElMessageBox.alert('验证码发送成功');
                 //60秒后重发
                 let num = 60;
                 const timeoutId = setInterval(() => {
                     num--;
-                    verCode_btn_text.value = `${num}秒后重发`;
+                    verCode_btn_disableText.value = `${num}秒后重发`;
                     if (num <= 0) {
-                        verCode_btn_text.value = '发送验证码';
                         verCode_btn_enable.value = true;
                         clearTimeout(timeoutId)
                     }
                 }, 1000);
             } catch (e: any) {
                 ElMessageBox.alert(e.message);
-                verCode_btn_text.value = '发送验证码';
                 verCode_btn_enable.value = true;
             }
-
         } else {
             ElMessageBox.alert('邮箱不符合条件');
         }
@@ -143,15 +139,14 @@ function handleSubmit() {
         try {
             if (valid) {
                 loading.value = true;
-                const data: any = { ...formData.value };
-                delete data.confirmPassword;
-                const res = await register(data);
-                if (res.ok) {
-                    router.push('/');
-                } else {
-                    if (res.error) {
-                        errorMsg.value = res.error;
-                    }
+                const data = { ...formData.value };
+                try {
+                    const res = await apiRequest('/api/register/submit', data);
+                    setToken(res.token);
+                    ws.newSocket();
+                    routeSource('/');
+                } catch (e: any) {
+                    errorMsg.value = e.message;
                 }
             } else {
                 ElMessageBox.alert('请正确输入每一项')
@@ -170,10 +165,7 @@ const loginRules = {
         {
             validator: async (_rule: any, value: string) => {
                 validateUsername(value);
-                const data = await checkUsername(value);
-                if (!data.ok) {
-                    throw new Error(data.error);
-                }
+                await apiRequest('/api/register/checkUsername', { username: value })
             },
             trigger: 'blur'
         }
@@ -190,10 +182,7 @@ const loginRules = {
         {
             validator: async (_rule: any, value: string) => {
                 validateNickname(value);
-                const data = await checkNickname(value);
-                if (!data.ok) {
-                    throw new Error(data.error);
-                }
+                await apiRequest('/api/register/checkNickname', { nickname: value });
             },
             trigger: 'blur'
         }
@@ -202,10 +191,7 @@ const loginRules = {
         {
             validator: async (_rule: any, value: string) => {
                 validateEmail(value);
-                const data = await checkEmail(value);
-                if (!data.ok) {
-                    throw new Error(data.error);
-                }
+                await apiRequest('/api/register/checkEmail', { email: value });
             },
             trigger: 'blur'
         }

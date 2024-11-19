@@ -24,9 +24,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { setEmail, setNickname } from '../../api/user';
 import { validateEmail, validateNickname } from '@mono/common';
 import { userStore } from '../../store/user';
+import { apiRequest } from '../../api/apiClient';
 const user = computed(() => userStore.user);
 
 function handleEditNickname() {
@@ -41,16 +41,16 @@ function handleEditNickname() {
         }
     })
         .then(async val => {
-            const res = await setNickname({ nickname: val.value });
-            if (res.ok) {
+            try {
+                await apiRequest('/api/user/setNickname', { nickname: val.value });
                 ElMessage({
                     type: 'success',
                     message: '修改成功'
                 });
-            } else {
+            } catch (e: any) {
                 ElMessage({
                     type: 'error',
-                    message: '出错了:' + res.error
+                    message: '出错了:' + e.message
                 })
             }
         });
@@ -68,16 +68,16 @@ function handleEditEmail() {
         }
     })
         .then(async val => {
-            const res = await setEmail({ email: val.value });
-            if (res.ok) {
+            try {
+                await apiRequest('/api/user/setEmail', { email: val.value, verCode: '' });
                 ElMessage({
                     type: 'success',
                     message: '修改成功'
                 });
-            } else {
+            } catch (e: any) {
                 ElMessage({
                     type: 'error',
-                    message: '出错了:' + res.error
+                    message: '出错了:' + e.message
                 })
             }
         });
