@@ -6,7 +6,7 @@ import { startSocketServer } from './socket';
 import { routers } from './router';
 import _ from 'lodash';
 import { checkToken } from './authlib';
-import { ShortUser } from './types';
+import { JwtUser } from './types';
 import { ApiError, ApiErrorCode, ApiResultBase, HEADER_TOKEN_KEY } from '@mono/common';
 
 export async function dealApi(
@@ -14,7 +14,7 @@ export async function dealApi(
         path: keyof typeof routers,
         body: any,
         token?: string,
-        user?: ShortUser
+        user?: JwtUser
     }) {
 
     const { path, token, body, user } = opts;
@@ -28,7 +28,7 @@ export async function dealApi(
         return result;
     }
     try {
-        let user_: ShortUser;
+        let user_: JwtUser;
         if (routerItem.user) {
             user_ = user || await checkToken(token);
         }

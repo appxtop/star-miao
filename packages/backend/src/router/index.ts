@@ -1,5 +1,5 @@
 import { ApiMap } from "@mono/common"
-import { ShortUser } from "../types";
+import { JwtUser } from "../types";
 import { auth } from "../api/auth";
 import { register } from "../api/register";
 import { user } from "../api/user";
@@ -10,7 +10,7 @@ export type RoutersType = {
         user: true,
         fn: (
             reqBody: ApiMap[path]['request'],
-            user: ShortUser
+            user: JwtUser
         ) => Promise<ApiMap[path]['response']>
     } | {
         user?: false,

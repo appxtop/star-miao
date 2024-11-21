@@ -1,6 +1,5 @@
 import { Socket } from "socket.io";
 import _ from "lodash";
-import { routers } from "../router";
 import { ApiMap, UserModel } from "@mono/common";
 import { dealApi } from "..";
 /**

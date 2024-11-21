@@ -1,7 +1,7 @@
 import { ApiError, KVKeys, log, validateEmail, validateNickname, validatePassword } from "@mono/common";
 import { encryPwd } from "../authlib";
 import { client } from "@mono/dbman";
-import { ShortUser } from "../types";
+import { JwtUser } from "../types";
 import { roomEmit, RoomEmitKey_user } from "../socket";
 import { sendEmail } from '@mono/common-node';
 import { kvClient } from '@mono/dbman';
@@ -26,7 +26,7 @@ export const user: Pick<RoutersType,
 > = {
     "/api/user/setPassword": {
         user: true,
-        fn: async function (body: { oldPassword: string; newPassword: string; }, user: ShortUser): Promise<void> {
+        fn: async function (body: { oldPassword: string; newPassword: string; }, user: JwtUser): Promise<void> {
             let oldPassword = body.oldPassword;
             let newPassword = body.newPassword;
             validatePassword(newPassword);
@@ -57,7 +57,7 @@ export const user: Pick<RoutersType,
     },
     "/api/user/setEmail": {
         user: true,
-        fn: async function (body: { email: string; verCode: string; }, user: ShortUser): Promise<void> {
+        fn: async function (body: { email: string; verCode: string; }, user: JwtUser): Promise<void> {
             const email = body.email.toLowerCase();
             const verCode = body.verCode;
             validateEmail(email);
@@ -91,7 +91,7 @@ export const user: Pick<RoutersType,
     },
     "/api/user/setNickname": {
         user: true,
-        fn: async function (body: { nickname: string; }, user: ShortUser): Promise<void> {
+        fn: async function (body: { nickname: string; }, user: JwtUser): Promise<void> {
             const nickname = body.nickname;
             validateNickname(nickname);
             const nicknameExist = await client.collection('users').exist({ nickname });

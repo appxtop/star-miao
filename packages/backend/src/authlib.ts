@@ -1,12 +1,12 @@
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { ShortUser } from './types';
+import { JwtUser } from './types';
 import { ApiError, ApiErrorCode } from '@mono/common';
 
 const JWT_SECRET = 'zwy_jwt_secret';
 
 //#TODO 应该自动续期
-export async function genToken(userModel: ShortUser) {
+export async function genToken(userModel: JwtUser) {
     const token = jwt.sign(userModel, JWT_SECRET, { expiresIn: '30d' });
     return token;
 }
@@ -16,7 +16,7 @@ export async function checkToken(token?: string) {
         throw new ApiError(ApiErrorCode.Unauthorized, "没有登录");
     }
     try {
-        const user = jwt.verify(token, JWT_SECRET) as ShortUser;//#TODO 应该定时更新token来续期
+        const user = jwt.verify(token, JWT_SECRET) as JwtUser;//#TODO 应该定时更新token来续期
         return user;
     } catch (e) {
         throw new ApiError(ApiErrorCode.Unauthorized, "登录失效");
