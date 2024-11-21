@@ -84,7 +84,7 @@
 <script setup lang="ts">
 import { ref, useTemplateRef } from 'vue';
 import { ElMessageBox } from 'element-plus';
-import { validateEmail, validateNickname, validatePassword, validateUsername } from '@mono/common';
+import { validateEmail, validateNickname, validatePassword, validateUsername, validateVerCode } from '@mono/common';
 import { apiRequest } from '../../api/apiClient';
 import { setToken } from '../../db';
 import { routeSource } from '../../router';
@@ -198,9 +198,7 @@ const loginRules = {
     verCode: [
         {
             validator: async (_rule: any, value: string) => {
-                if (!value) {
-                    throw new Error('验证码不能为空');
-                }
+                validateVerCode(value);
             },
             trigger: 'blur'
         }

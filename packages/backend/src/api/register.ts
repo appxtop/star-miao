@@ -1,5 +1,5 @@
 import { client } from "@mono/dbman";
-import { validateEmail, validateNickname, validatePassword, validateUsername, UserModel } from "@mono/common";
+import { validateEmail, validateNickname, validatePassword, validateUsername, UserModel, ApiError } from "@mono/common";
 import { encryPwd, genToken } from "../authlib";
 import { checkVercode } from "./user";
 import { RoutersType } from "../router";
@@ -38,19 +38,19 @@ export const register: Pick<RoutersType,
                 nickname
             });
             if (nicknameExists) {
-                throw new Error('昵称已经存在');
+                throw new ApiError('昵称已经存在')
             }
 
             const usernameExists = await client.collection('users').exist({
                 usernameLower
             });
             if (usernameExists) {
-                throw new Error('用户名已经存在');
+                throw new ApiError('用户名已经存在');
             }
 
             const emailExists = await client.collection('users').exist({ email });
             if (emailExists) {
-                throw new Error('电子邮箱已被注册');
+                throw new ApiError('电子邮箱已被注册');
             }
             const hashedPassword = encryPwd(password);
             const userModel: Partial<UserModel> = {
@@ -72,7 +72,7 @@ export const register: Pick<RoutersType,
                 email
             });
             if (exist) {
-                throw new Error("邮箱已经存在");
+                throw new ApiError("邮箱已经存在");
             }
         }
     },
@@ -83,7 +83,7 @@ export const register: Pick<RoutersType,
                 usernameLower
             });
             if (exists) {
-                throw new Error('用户名已存在');
+                throw new ApiError('用户名已存在');
             }
         }
     },
@@ -95,7 +95,7 @@ export const register: Pick<RoutersType,
                 nickname
             });
             if (exists) {
-                throw new Error('昵称已经存在');
+                throw new ApiError('昵称已经存在');
             }
         }
     }

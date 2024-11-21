@@ -1,7 +1,9 @@
+import { ApiErrorCode } from "../error";
+
 export interface ApiResultBase {
     ok?: 1;
     error?: string;
-    status?: 401 | 404;
+    errorCode?: ApiErrorCode;
 }
 
 export interface ApiMap {

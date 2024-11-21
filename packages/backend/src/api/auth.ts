@@ -1,6 +1,7 @@
 import { client } from "@mono/dbman";
 import { encryPwd, genToken } from "../authlib";
 import { RoutersType } from "../router";
+import { ApiError, ApiErrorCode } from "@mono/common";
 
 export const auth: Pick<RoutersType, '/api/auth/login'> = {
     "/api/auth/login": {
@@ -15,7 +16,7 @@ export const auth: Pick<RoutersType, '/api/auth/login'> = {
                 password: encryPwd(password)
             });
             if (!userModel) {
-                throw new Error('用户名或密码错误');
+                throw new ApiError(ApiErrorCode.Message, '用户名或密码错误');
             }
             const token = await genToken({ _id: userModel._id });
             return { token };

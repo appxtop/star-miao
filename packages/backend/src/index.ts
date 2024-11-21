@@ -7,49 +7,61 @@ import { routers } from './router';
 import _ from 'lodash';
 import { checkToken } from './authlib';
 import { ShortUser } from './types';
-import { ApiResultBase, HEADER_TOKEN_KEY } from '@mono/common';
+import { ApiError, ApiErrorCode, ApiResultBase, HEADER_TOKEN_KEY } from '@mono/common';
+
+export async function dealApi(
+    opts: {
+        path: keyof typeof routers,
+        body: any,
+        token?: string,
+        user?: ShortUser
+    }) {
+
+    const { path, token, body, user } = opts;
+
+    const routerItem = routers[path];
+    let result: ApiResultBase;
+    if (!routerItem) {
+        result = {
+            errorCode: ApiErrorCode.ApiNotFound
+        }
+        return result;
+    }
+    try {
+        let user_: ShortUser;
+        if (routerItem.user) {
+            user_ = user || await checkToken(token);
+        }
+        const data = await routerItem.fn(body, user_!);
+        result = _.extend({ ok: 1 } as any, data);
+    } catch (e: any) {
+        if (e instanceof ApiError) {
+            result = {
+                errorCode: e.errorCode,
+                error: e.error
+            }
+        } else {
+            result = {
+                errorCode: ApiErrorCode.SystemError,
+                error: "系统异常"
+            }
+        }
+    }
+
+    return result;
+}
+
+
 export async function startBackendServer() {
-    console.log('启动')
     await connectAll();
     const app = express();
     app.use(express.json({ limit: '50mb' }));
+
     app.use(async (req, res) => {
         const path = req.path as keyof typeof routers;
-        const routerItem = routers[path];
-        let result: ApiResultBase | undefined;
-        if (routerItem) {
-            let user: ShortUser | undefined = undefined;
-            if (routerItem.user) {
-                const token = req.headers[HEADER_TOKEN_KEY] as string;
-                try {
-                    user = await checkToken(token);
-                } catch (error: any) {
-                    result = { status: 401, error: error.message };
-                    res.json(result);
-                    return;
-                }
-            }
-            const body = req.body;
-            try {
-                const data = await routerItem.fn(body, user!);
-                if (res.headersSent) {
-                    return;
-                }
-                result = _.extend({ ok: 1 } as any, data)
-            } catch (error: any) {
-                result = { error: error.message };
-                if (error.stack) {
-                    console.error(error.stack);
-                }
-            }
-            res.json(result);
-            return;
-        }
-        console.log('未实现的请求:', req.method, req.baseUrl, 'path:', req.path);
-        result = {
-            "error": req.method + ',' + req.url + ',not found',
-            status: 404
-        }
+        const token = req.headers[HEADER_TOKEN_KEY] as string;
+        const body = req.body;
+        const result = await dealApi({ path, token, body });
         res.json(result);
     });
     const server = createServer(app);

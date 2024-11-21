@@ -1,6 +1,6 @@
 import axios from "axios";
 import router from "../router";
-import { ApiMap, HEADER_TOKEN_KEY, ApiResultBase } from "@mono/common";
+import { ApiMap, HEADER_TOKEN_KEY, ApiResultBase, ApiErrorCode } from "@mono/common";
 import { getToken } from "../db";
 import { ws } from "../sigleton/ws";
 const apiClient = axios.create({
@@ -26,11 +26,11 @@ apiClient.interceptors.request.use(config => {
 // });
 
 export async function apiRequest<T extends keyof ApiMap>(path: T, data: ApiMap[T]['request']): Promise<ApiMap[T]['response']> {
-    const res = await ws.request(path, data);
-    // const res = await apiClient.post(path, data);
+    // const res = await ws.request(path, data);
+    const res = await apiClient.post(path, data);
     const result = res.data as ApiResultBase;
     if (!result.ok) {
-        if (result.status === 401) {
+        if (result.errorCode === ApiErrorCode.Unauthorized) {
             router.push('/login');
         }
         throw new Error(result.error);

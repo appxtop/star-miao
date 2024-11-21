@@ -20,7 +20,7 @@ export type RoutersType = {
     }
 };
 
-const routers: RoutersType = {
+export const routers: RoutersType = {
     '/api/auth/login': auth["/api/auth/login"],
     '/api/register/submit': register['/api/register/submit'],
     '/api/register/checkEmail': register['/api/register/checkEmail'],
@@ -31,5 +31,3 @@ const routers: RoutersType = {
     '/api/user/setNickname': user['/api/user/setNickname'],
     '/api/user/setPassword': user['/api/user/setPassword']
 };
-
-export { routers };

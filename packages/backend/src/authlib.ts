@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { ShortUser } from './types';
+import { ApiError, ApiErrorCode } from '@mono/common';
 
 const JWT_SECRET = 'zwy_jwt_secret';
 
@@ -10,12 +11,16 @@ export async function genToken(userModel: ShortUser) {
     return token;
 }
 //认证成功返回user,认证失败抛出异常reject
-export async function checkToken(token: string) {
+export async function checkToken(token?: string) {
     if (!token) {
-        throw new Error('没有认证');
+        throw new ApiError(ApiErrorCode.Unauthorized, "没有登录");
     }
-    const user = jwt.verify(token, JWT_SECRET) as ShortUser;//#TODO 应该定时更新token来续期
-    return user;
+    try {
+        const user = jwt.verify(token, JWT_SECRET) as ShortUser;//#TODO 应该定时更新token来续期
+        return user;
+    } catch (e) {
+        throw new ApiError(ApiErrorCode.Unauthorized, "登录失效");
+    }
 }
 
 const salt = 'zwyzwyzwy';

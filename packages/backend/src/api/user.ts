@@ -1,4 +1,4 @@
-import { KVKeys, log, validateEmail, validateNickname, validatePassword } from "@mono/common";
+import { ApiError, KVKeys, log, validateEmail, validateNickname, validatePassword } from "@mono/common";
 import { encryPwd } from "../authlib";
 import { client } from "@mono/dbman";
 import { ShortUser } from "../types";
@@ -10,10 +10,10 @@ import { RoutersType } from "../router";
 export async function checkVercode(email: string, verCode: string) {
     const verCode_ = await kvClient.get(KVKeys.VERCODE + email);
     if (!verCode_) {
-        throw new Error('没有验证码');
+        throw new ApiError('没有验证码');
     }
     if (verCode_ !== verCode) {
-        throw new Error('验证码不匹配');
+        throw new ApiError('验证码不匹配');
     }
 }
 
@@ -39,11 +39,11 @@ export const user: Pick<RoutersType,
             });
 
             if (!userModel) {
-                throw new Error('未知错误');
+                throw new ApiError('未知错误');
             }
 
             if (userModel.password !== oldPassword) {
-                throw new Error('旧密码错误');
+                throw new ApiError('旧密码错误');
             }
 
             await client.collection('users').update({
@@ -63,7 +63,7 @@ export const user: Pick<RoutersType,
             validateEmail(email);
             const emailExists = await client.collection('users').exist({ email });
             if (emailExists) {
-                throw new Error('电子邮件已被注册');
+                throw new ApiError('电子邮件已被注册');
             }
             await checkVercode(email, verCode);
             //#TODO 数据库应该会有email unique锁吧?
@@ -84,7 +84,7 @@ export const user: Pick<RoutersType,
                     roomEmit(RoomEmitKey_user + user._id, 'user', userModel);
                 }
             } else {
-                throw new Error('未知错误');
+                throw new ApiError('未知错误');
             }
 
         }
@@ -96,7 +96,7 @@ export const user: Pick<RoutersType,
             validateNickname(nickname);
             const nicknameExist = await client.collection('users').exist({ nickname });
             if (nicknameExist) {
-                throw new Error('昵称已被注册');
+                throw new ApiError('昵称已被注册');
             }
 
             const res = await client.collection('users').update({
@@ -115,7 +115,7 @@ export const user: Pick<RoutersType,
                     roomEmit(RoomEmitKey_user + user._id, 'user', userModel);
                 }
             } else {
-                throw new Error('未知错误');
+                throw new ApiError('未知错误');
             }
         }
     },
