@@ -1,4 +1,6 @@
+import { UpdateCardsType } from "../card";
 import { ApiErrorCode } from "../error";
+import { CardModel, CardType } from "./model";
 
 export interface ApiResultBase {
     ok?: 1;
@@ -6,7 +8,7 @@ export interface ApiResultBase {
     errorCode?: ApiErrorCode;
 }
 
-export interface ApiMap {
+export interface ApiTypeMap {
     "/api/register/submit": {
         request: {
             username: string;
@@ -48,17 +50,18 @@ export interface ApiMap {
     '/api/user/sendVerCode': {
         request: { email: string },
         response: void
+    },
+    '/api/card/cards': {
+        request: {},
+        response: {
+            gameTime: number;
+            cards: {
+                [_id: string]: CardModel
+            }
+        }
+    },
+    '/api/card/buy': {
+        request: { type: CardType, num: number },
+        response: UpdateCardsType
     }
 }
-
-// export type ApiType<T extends keyof ApiMap> = {
-//     request: ApiMap[T]['request'],
-//     response: ApiMap[T]['response']
-// }
-
-
-// async function apiCall<T extends keyof ApiMap>(apiName: T, requestData: ApiType<T>['request']): Promise<ApiType<T>['response']> {
-//     const response = {} as ApiType<T>['response'];
-//     return response;
-// }
-

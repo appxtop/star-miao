@@ -4,8 +4,11 @@ export interface BaseModel {
 
 export interface UserModel extends BaseModel {
     username: string;
+    /**
+     * 仅仅在注册防止重复用户名的时候使用
+     */
     usernameLower: string;
-    password: string;
+    passwordHash: string;
     nickname: string;
     email: string;
 }
@@ -19,7 +22,6 @@ export interface CardModel extends BaseModel {
     type: CardType;
     num: number;
     user: string;
-    room: string;
     x: number;
     y: number;
 }

@@ -1,8 +1,11 @@
+import { VisitorConn } from "../socket/VisitorConn";
 
-/**
- * jwt保存的登录信息
- */
-export interface JwtUser {
+export interface SessionUser {
     _id: string;
 }
 
+export interface SocketModule {
+    init?: () => void;
+    subscribe: (channel: string, conn: VisitorConn) => Promise<void>;
+    unsubscribe: (channel: string, conn: VisitorConn) => Promise<void>;
+}

@@ -1,11 +1,11 @@
 import { client } from "@mono/dbman";
 import { validateEmail, validateNickname, validatePassword, validateUsername, UserModel, ApiError } from "@mono/common";
-import { encryPwd, genToken } from "../authlib";
+import { hashPwd, genToken } from "../authlib";
 import { checkVercode } from "./user";
-import { RoutersType } from "../router";
+import { ApiMapType } from ".";
 
 
-export const register: Pick<RoutersType,
+export const register: Pick<ApiMapType,
     | '/api/register/submit'
     | '/api/register/checkEmail'
     | '/api/register/checkNickname'
@@ -52,12 +52,12 @@ export const register: Pick<RoutersType,
             if (emailExists) {
                 throw new ApiError('电子邮箱已被注册');
             }
-            const hashedPassword = encryPwd(password);
+            const passwordHash = await hashPwd(password);
             const userModel: Partial<UserModel> = {
                 username,
                 nickname,
                 usernameLower,
-                password: hashedPassword,
+                passwordHash,
                 email,
             };
             const res = await client.collection('users').insertOne(userModel);

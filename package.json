@@ -13,6 +13,7 @@
     "ncu-all": "node dist/ncu-all.js",
     "watch": "tsc --watch -p tsconfig.build.json",
     "backend": "cd packages/backend&&npm run dev",
+    "engine": "cd packages/engine&& npm run dev",
     "client-web": "cd packages/client-web&&npm run dev"
   },
   "devDependencies": {

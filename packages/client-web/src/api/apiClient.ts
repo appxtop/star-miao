@@ -1,8 +1,7 @@
 import axios from "axios";
 import router from "../router";
-import { ApiMap, HEADER_TOKEN_KEY, ApiResultBase, ApiErrorCode } from "@mono/common";
+import { ApiTypeMap, HEADER_TOKEN_KEY, ApiResultBase, ApiErrorCode } from "@mono/common";
 import { getToken } from "../db";
-import { ws } from "../sigleton/ws";
 const apiClient = axios.create({
     // baseURL: '/',//api
 });
@@ -25,7 +24,7 @@ apiClient.interceptors.request.use(config => {
 //     return Promise.reject(error);
 // });
 
-export async function apiRequest<T extends keyof ApiMap>(path: T, data: ApiMap[T]['request']): Promise<ApiMap[T]['response']> {
+export async function apiRequest<T extends keyof ApiTypeMap>(path: T, data: ApiTypeMap[T]['request']): Promise<ApiTypeMap[T]['response']> {
     // const res = await ws.request(path, data);
     const res = await apiClient.post(path, data);
     const result = res.data as ApiResultBase;

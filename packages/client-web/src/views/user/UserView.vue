@@ -14,7 +14,7 @@
                 <el-button @click="handleEditEmail()" type="primary">修改</el-button>
             </div>
             <div>
-                密码:{{ user.password }}
+                密码:
                 <router-link to="/user/modify-password">修改</router-link>
             </div>
         </template>

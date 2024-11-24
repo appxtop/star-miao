@@ -7,6 +7,9 @@ class MySocketIO {
     private evts: {
         [evtName: string]: Function[]
     } = {};
+    private subs: {
+        [channel: string]: number;
+    } = {};
 
     constructor() {
         this.socket = this.newSocket();
@@ -45,6 +48,25 @@ class MySocketIO {
                 }
             });
         });
+    }
+
+    subscribe(channel: string) {
+        this.socket.emit('subscribe', channel);
+        //记录下来,用来重连的时候重新订阅
+        this.subs[channel] ??= 0;
+        this.subs[channel]++;
+    }
+
+    unSubscribe(channel: string) {
+        if (this.subs[channel]) {
+            this.subs[channel]--;
+            if (this.subs[channel] <= 0) {
+                delete this.subs[channel];
+                this.socket.emit('unsubscribe', channel)
+            }
+        } else {
+            console.warn('多余的订阅', channel);
+        }
     }
 
     public addListener(channel: string, listener: (...args: any[]) => void) {

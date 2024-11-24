@@ -70,7 +70,13 @@ export class DBCollection<T extends BaseModel> {
             deletedCount: res.deletedCount
         };
     }
-    async update(query: QueryFilter<T>, data: UpdateData<T>, params?: { upsert?: boolean }) {
+    async updateMany(query: QueryFilter<T>, data: UpdateData<T>, params?: { upsert?: boolean }) {
+        return this._update(query, data, false, params);
+    }
+    async updateOne(query: QueryFilter<T>, data: UpdateData<T>, params?: { upsert?: boolean }) {
+        return this._update(query, data, true, params);
+    }
+    private async _update(query: QueryFilter<T>, data: UpdateData<T>, one: boolean, params?: { upsert?: boolean }) {
         const filter = dealQuery(query);
         if (data.$merge) {
             const flat = (obj: any, stack: string[] = []) => {
@@ -95,15 +101,8 @@ export class DBCollection<T extends BaseModel> {
             delete data.$merge;
             data.$set = merge;
         }
-        if (Object.keys(filter).length === 1 && filter._id) {
-            const result = await this.tb.findOneAndUpdate({
-                _id: filter._id,
-            }, data as any, params || {});
-            return { modified: result ? 1 : 0 };
-        } else {
-            const { modifiedCount } = await this.tb.updateMany(filter, data as any, params);
-            return { modified: modifiedCount }
-        }
+        const { modifiedCount } = one ? await this.tb.updateOne(filter, data as any, params) : await this.tb.updateMany(filter, data as any, params);
+        return { modified: modifiedCount }
     }
 
     async bulk(bulks: { op: string, id: string, update: any, data: any }[]) {

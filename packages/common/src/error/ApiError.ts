@@ -4,12 +4,14 @@ export enum ApiErrorCode {
     Unauthorized = 1401,
     ApiNotFound = 1404,
     Message = 1201,
+    ParamsError = 1501
 }
 export const apiErrorMessages: { [code in ApiErrorCode]: string } = {
     1500: "系统异常",
     1401: "账号未认证",
     1404: "Api不存在",
-    1201: "消息异常"
+    1201: "消息异常",
+    1501: "参数错误"
 } as const;
 
 export class ApiError extends Error {
@@ -25,9 +27,8 @@ export class ApiError extends Error {
             errorCode = ApiErrorCode.Message;
             error = errorOrCode;
         }
-
-        const debugMessage = apiErrorMessages[errorCode] + ':' + error;
-        super(debugMessage);
+        let message = errorCode === ApiErrorCode.Message ? error : apiErrorMessages[errorCode] + ':' + error;
+        super(message);
         this.errorCode = errorCode;
         this.error = error;
     }

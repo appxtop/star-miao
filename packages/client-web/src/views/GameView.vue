@@ -7,30 +7,33 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, useTemplateRef } from "vue";
-import { CardModel } from "@mono/common";
+import { computed, onMounted, useTemplateRef, watch } from "vue";
 import CardCom from "../components/game/CardCom.vue";
+import { gameStore } from "../store/game";
+import { ws } from "../sigleton/ws";
+import { userStore } from "../store/user";
+import { CardModel } from "@mono/common";
+import _ from "lodash";
+const cards = computed(() => gameStore.card.cards);
+// const loadding = ref(true);
 
-const cards: CardModel[] = [
-  {
-    _id: "aaa",
-    type: "猫薄荷",
-    num: 1,
-    room: "",
-    user: "",
-    x: 100,
-    y: 100,
-  },
-  {
-    _id: "bbb",
-    type: "猫薄荷田",
-    num: 3,
-    room: "",
-    user: "",
-    x: 300,
-    y: 200,
-  },
-];
+watch(() => userStore.user, user => {
+  if (user) {
+    const channel = 'cards:' + user._id;
+    ws.subscribe(channel);
+    ws.addListener(channel, (data: {
+      gameTime: number,
+      cards: {
+        [id: string]: CardModel
+      }
+    }) => {
+      gameStore.updateCard(data);
+    })
+  }
+}, {
+  immediate: true
+});
+
 
 const comRef = useTemplateRef("comRef");
 onMounted(() => {

@@ -1,5 +1,5 @@
 {
-  "name": "@mono/backend",
+  "name": "@mono/engine",
   "version": "1.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,16 +9,13 @@
     "dev": "node dist/bin/start.js",
     "build": "tsc -p tsconfig.build.json"
   },
-  "dependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "bcryptjs": "^2.4.3",
-    "express": "^5.0.1",
-    "lodash": "^4.17.21",
-    "socket.io": "^4.8.1"
-  },
   "devDependencies": {
-    "@types/express": "^5.0.0",
+    "@types/lodash": "^4.17.13",
     "@types/node": "^22.9.0",
     "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "isolated-vm": "^5.0.1",
+    "lodash": "^4.17.21"
   }
 }

@@ -27,7 +27,7 @@ export async function execCmd(command: string, args = []) {
 export async function getPkgs() {
     const pkgPaths: string[] = [];
     const packagesDir = path.join(__dirname, '../packages');
-    const packages = ['common', 'common-node', 'dbman', 'backend', 'client-web', 'launcher']
+    const packages = ['common', 'common-node', 'dbman', 'backend', 'engine', 'client-web', 'launcher']
     const curPackages = await fs.readdir(packagesDir); // 使用fs.promises API 
     if ([...packages].sort().join() !== [...curPackages].sort().join()) {
         console.error('更改了新包请配置这里');

@@ -1,12 +1,13 @@
-import { RoomModel, UserModel } from "@mono/common"
+import { CardModel, RoomModel, UserModel } from "@mono/common"
 
-export type DbName = "users" | "rooms"
-
+// export type DbName = "users" | "rooms" | 'cards'
 
 export type DbModels = {
     "users": UserModel;
     "rooms": RoomModel;
+    "cards": CardModel;
 }
+export type DbName = keyof DbModels;
 
 type OverrideIdType<T> = {
     [P in keyof T]: P extends '_id' ? string : T[P];

@@ -5,6 +5,7 @@ import { client } from "@mono/dbman";
 import { VisitorConn } from "./VisitorConn";
 import { UserConn } from "./UserConn";
 import { HEADER_TOKEN_KEY } from "@mono/common";
+import { socketModules } from "./mods";
 
 let socketServer: Server;
 export function startSocketServer(server: http.Server) {
@@ -15,7 +16,7 @@ export function startSocketServer(server: http.Server) {
         try {
             const token = socket.handshake.auth[HEADER_TOKEN_KEY] as string;
             const { _id } = await checkToken(token);
-            const user = await client.collection('users').findOne({ _id }, { password: false });
+            const user = await client.collection('users').findOne({ _id }, { passwordHash: false });
             if (!user) {
                 throw new Error("错误用户");
             }
@@ -25,6 +26,11 @@ export function startSocketServer(server: http.Server) {
             new VisitorConn(socket).init();
         }
     });
+
+    socketModules.forEach(m => {
+        m.init && m.init();
+    });
+
 }
 
 

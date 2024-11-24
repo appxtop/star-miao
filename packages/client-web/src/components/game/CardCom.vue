@@ -1,54 +1,90 @@
 <template>
-  <div
-    ref="comRef"
-    class="card-container cursor-default"
-    :style="{ top: model.y + 'px', left: model.x + 'px' }"
-  >
-    <div class="header">
-      {{ name }}
-      <span class="num"> x{{ num }} </span>
-    </div>
-    <div class="content">
-      <div
-        class="clip"
-        :style="{ backgroundImage: 'url(' + imageUrl + ')' }"
-      ></div>
-      <div class="footer">
-        <div class="num-left" v-if="num_left">
-          {{ num_left }}
+  <div ref="comRef" class="card-container cursor-default" :style="{ top: model.y + 'px', left: model.x + 'px' }">
+    <el-tooltip>
+      <template #content>
+        <div>
+          <template v-if="price">
+            价格:
+            <div>
+              <template v-for="(item, type) in price">
+                <template v-if="item">
+                  {{ type }}:
+                  <span
+                    :style="{ color: item.base + item.increment * num > gameStore.card.cards_type[type]![0].num ? 'red' : void 0 }">
+                    {{ item.base + item.increment * num }}
+                  </span>
+                </template>
+              </template>
+            </div>
+          </template>
         </div>
-        <div class="num-content"></div>
-        <div class="num-right" v-if="num_right">
-          {{ num_right }}
+      </template>
+      <div class="card-inner">
+        <div class="header">
+          {{ name }}
+          <span class="num"> x{{ num }} </span>
+        </div>
+        <div class="content">
+          <div class="clip" :style="{ backgroundImage: 'url(' + imageUrl + ')' }"></div>
+          <div class="footer">
+            <div class="num-left" v-if="num_left">
+              {{ num_left }}
+            </div>
+            <div class="num-content"></div>
+            <div class="num-right" v-if="num_right">
+              {{ num_right }}
+            </div>
+          </div>
+
         </div>
       </div>
-    </div>
+    </el-tooltip>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, reactive, ref, useTemplateRef } from "vue";
+import { computed, onMounted, ref, useTemplateRef } from "vue";
 import { gameStore } from "../../store/game";
-import { CardModel } from "@mono/common";
-
+import { CardModel, cards } from "@mono/common";
+import { apiRequest } from "../../api/apiClient";
+import { ElMessage } from "element-plus";
+import _ from "lodash";
 const props = defineProps<{
   model: CardModel;
 }>();
 
-const model = reactive(props.model);
-const name = computed(() => model.type);
-const num = computed(() => model.num);
-const imageUrl = computed(() => `/images/${model.type}.png`);
+const id = props.model._id;
+
+const model = computed(() => gameStore.card.cards[id]);
+const price = computed(() => cards[model.value.type].price)
+const name = computed(() => model.value.type);
+const num = computed(() => model.value.num);
+const imageUrl = computed(() => `/images/${model.value.type}.png`);
 
 const num_left = ref(0); //暂时用不到
 const num_right = ref(0);
 
-function handleClick() {
-  if (model.type === "猫薄荷") {
-    model.num++;
+async function handleClick() {
+  if (model.value.type === "猫薄荷") {
+    // model.value.num++;
+  }
+  else if (model.value.type === '猫薄荷田') {
+    try {
+      const res = await apiRequest('/api/card/buy', { type: '猫薄荷田', num: 1 });
+      gameStore.updateCard(res);
+      ElMessage.success({
+        message: '购买成功',
+        grouping: true
+      });
+    } catch (e: any) {
+      ElMessage.error({
+        message: '' + e,
+        grouping: true
+      })
+    }
   }
 }
- 
+
 type EvtDown = {
   time: number;
   clientX: number;
@@ -103,8 +139,8 @@ onMounted(() => {
       //   com.style.top = curTop + offsetY + "px";
       //   com.style.left = curLeft + offsetX + "px";
 
-      model.x += offsetX;
-      model.y += offsetY;
+      model.value.x += offsetX;
+      model.value.y += offsetY;
 
       evtDown.drag_curClientX = evt.clientX;
       evtDown.drag_curClientY = evt.clientY;
@@ -143,11 +179,14 @@ onMounted(() => {
 }
 
 .card-container {
+  position: absolute;
+}
+
+.card-inner {
   &:hover {
     outline: 5px solid green;
   }
 
-  position: absolute;
   width: 250px;
   height: 300px;
   border: 10px solid #1f1f1f;
@@ -157,7 +196,7 @@ onMounted(() => {
   left: 100px;
   top: 100px;
 
-  & > .header {
+  &>.header {
     background-color: #f6e8b1;
     height: 50px;
     font-size: 20px;
@@ -172,10 +211,10 @@ onMounted(() => {
     }
   }
 
-  & > .content {
+  &>.content {
     padding-top: 15px;
 
-    & > .clip {
+    &>.clip {
       width: 160px;
       height: 160px;
       border-radius: 160px;
@@ -189,11 +228,11 @@ onMounted(() => {
       /* 防止背景图片重复 */
     }
 
-    & > .footer {
+    &>.footer {
       display: flex;
 
-      & > .num-left,
-      & > .num-right {
+      &>.num-left,
+      &>.num-right {
         background-color: black;
         width: 50px;
         height: 50px;
@@ -206,7 +245,7 @@ onMounted(() => {
         font-size: 18px;
       }
 
-      & > .num-content {
+      &>.num-content {
         flex: 1;
       }
     }
